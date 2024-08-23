@@ -31,4 +31,3 @@ The admin credentials are as follows:
 
 - **Email**: `admin@lending.com`
 - **Password**: `password`
-
