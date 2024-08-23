@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LendingMoneyApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .navbar {
+      z-index: 1000;
+    }
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .sidebar {
+      min-width: 250px;
+      max-width: 250px;
+      height: 100%;
+      background-color: #343a40;
+      /* padding-top: 1rem; */
+      overflow-y: auto;
+    }
+    .sidebar .nav-link {
+      color: #fff;
+    }
+    .sidebar .nav-link.active {
+      background-color: #495057;
+      color: #fff;
+    }
+    .content {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .sidebar .nav-item:hover {
+    background-color: #323b45; /* Change background color on hover */
+    color: #fff; /* Change text color on hover */
+}
+  </style>
+</head>
+
+<body>
+  <!-- Top Navbar -->
+    <%= render "layouts/navbar" if current_user.present? %>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <% if current_user.present? %>
+      <!-- Sidebar -->
+      <div class="sidebar bg-dark">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <span class="nav-link active" onclick="getList('requested')">Request</span>
+          </li>
+          <li class="nav-item">
+            <span class="nav-link" onclick="getList('approved')">Approved</span>
+          </li>
+          <li class="nav-item">
+            <span class="nav-link" onclick="getList('open')">Open</span>
+          </li>
+          <li class="nav-item">
+            <span class="nav-link" onclick="getList('rejected')">Rejected</span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="getList('closed')">Closed</a>
+          </li>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Main Content Area -->
+    <div class="content" style="background: #f2f2f2">
+      <%= yield %>
+    </div>
+  </div>
+<script>
+    function setActiveNavLink(status) {
+        $('.nav-link').removeClass('active').addClass('inactive');
+        $('.nav-link[onclick*="' + status + '"]').removeClass('inactive').addClass('active');
+    }
+
+function getList(status){
+    $.ajax({
+    url: '/data_list',
+    method: 'GET',
+    data: { status: status },
+    success: function(response) {
+        setActiveNavLink(status);
+    },
+    error: function(error) {
+        console.log('Error:', error);
+    }
+    });
+}
+
+</script>
+</body>
+</html>

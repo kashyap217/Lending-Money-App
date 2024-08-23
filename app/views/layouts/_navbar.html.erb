@@ -1,0 +1,31 @@
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand">Lending Money App 
+      <%if current_user.is_admin? %>
+        <span style="font-size:12px; margin-left:10px;">Admin</span>
+      <% end %>
+      </a>
+      <form class="d-flex">
+        <span class="m-2 text-white p-2"><%= current_user.email %></span>
+        <div class="m-2 text-white p-2">Balance: <%= current_user.amount %> Rs</div>
+        <% unless current_user.is_admin? %>
+          <%= button_tag "Request Loan", id: "my-button", url:'#', type: "button", class: "btn btn-primary m-2", onclick: "requestLoan()" %>
+        <% end %>
+        <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-danger m-2" %>
+      </form>
+    </div>
+  </nav>
+  <script>
+    function requestLoan(){
+        $.ajax({
+            url: '/users/<%= current_user.id %>/loans/new',
+            method: 'GET',
+            success: function(response) {
+                console.log('Success:', response);
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+  </script>
