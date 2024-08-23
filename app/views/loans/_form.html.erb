@@ -1,0 +1,30 @@
+<div class="p-5">
+  <%= form_with model: [user, loan], local: true do |f| %>
+    <div class="col-md-6 mb-3">
+      <%= f.label :amount, class:'form-label'%>
+      <%= f.number_field :amount, class:'form-control'%>
+      <% if loan.errors[:amount].any? %>
+        <div class="error text-danger">amount <%= loan.errors[:amount].first %></div>
+      <% end %>
+    </div>
+    <div class="col-md-6 mb-3">
+      <%= f.label 'Interest Rate(%)', class:'form-label' %>
+      <%= f.number_field  :interest_rate, step: '0.01',  class:'form-control' %>
+      <% if loan.errors[:interest_rate].any? %>
+        <div class="error text-danger">Interest Rate <%= loan.errors[:interest_rate].first %></div>
+      <% end %>
+    </div>
+    <% if params[:status].present? %>
+    <%= f.hidden_field :status, value: params[:status] %>
+    <% end %>
+    <div>
+      <% if params[:action] == 'adjustment' %>
+        <%= f.submit "Update", class:'btn btn-primary' %>
+      <% else %>
+        <%= f.submit "Create", class:'btn btn-primary' %>
+      <% end %>
+      <%= link_to "Back", root_path, class: 'btn btn-secondary' %>
+
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,115 @@
+<div class="container mt-4">
+  <!-- Title and Loan Details -->
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <h1 class="display-4 mb-4"><%= @loan.status.titleize %></h1>
+      <h2 class="mb-3">Total Amount: <%= (@loan.total_amount) %> Rs</h2>
+      <h3 class="mb-3">Amount<span class="fs-6">(principle)</span>: <%= (@loan.amount) %> Rs</h3>
+      <p class="lead">Interest Rate (%): <%= @loan.interest_rate %></p>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <% if ['requested', 'readjustment'].include?(@loan.status) %>
+    <div class="row mb-4">
+      <div class="col-md-12 text-center">
+        <%= button_tag "Reject Loan", id: "my-button", class: "btn btn-secondary me-2", onclick: "reject_request()" %>
+        <%= button_tag "Adjust Loan", id: "my-button", url:'#', type: "button", class: "btn btn-warning me-2", onclick: "updateLoan()" %>
+        <%= link_to "Approve Loan", approve_path(id: @loan.id), class: "btn btn-success" + (current_user.amount >= @loan.amount ? '' : ' disabled') %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Repay Loan Button -->
+  <% if @loan.status == 'open' && !current_user.is_admin? %>
+    <div class="row mb-4">
+      <div class="col-md-12 text-center">
+        <%= link_to 'Repay Loan', repay_loan_path(id: @loan.id), class: "btn btn-success" %>
+        <%#= button_tag "Repay Loan", class: "btn btn-success repay-loan", onclick: "repayLoan()" %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Adjustments List -->
+  <% if @loan.adjustments.present? %>
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="mb-3">Adjustments</h2>
+        <ul class="list-group">
+          <% @loan.adjustments.order(:created_at).each do |adjustment| %>
+            <li>Status: <%= adjustment.status.titleize %> | Interest Rate: <%= adjustment.interest_rate %> | Amount: <%= adjustment.amount %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Back Link -->
+  <div class="row mt-4">
+    <div class="col-md-12 text-center">
+      <%= link_to "Back", '#', onclick: 'history.back(); return false;', class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div>
+
+<script>
+    function updateLoan() {
+        $.ajax({
+            url: '/adjustment',
+            method: 'GET',
+            data: {id: <%= @loan.id %>},
+            success: function (response) {
+                console.log('Success:', response);
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+<!--    function repayLoan() {-->
+<!--        $('.repay-loan').css('pointer-events', 'none');-->
+
+<!--        $.ajax({-->
+<!--            url: '/repay_loan',-->
+<!--            method: 'GET',-->
+<!--            data: {id: <#%= @loan.id %>},-->
+<!--            success: function (response) {-->
+<!--                $('.repay-loan').css('pointer-events', '');-->
+<!--                console.log('Success:', response);-->
+<!--            },-->
+<!--            error: function (error) {-->
+<!--                console.log('Error:', error);-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+
+    function reject_request() {
+        $.ajax({
+            url: '/reject',
+            method: 'GET',
+            data: {id: <%= @loan.id %>},
+            success: function (response) {
+                console.log('Success:', response);
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+    function adjustment() {
+        $.ajax({
+            url: '/adjustment',
+            method: 'GET',
+            data: {id: <%= @loan.id %>},
+            success: function (response) {
+                console.log('Success:', response);
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+</script>
