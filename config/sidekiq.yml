@@ -1,0 +1,7 @@
+:scheduler:
+  :schedule:
+    my_recurring_job:
+      every: 120s
+      class: InterestCheckerJob
+      queue: default
+

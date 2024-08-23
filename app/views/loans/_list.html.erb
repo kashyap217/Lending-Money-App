@@ -1,0 +1,80 @@
+<table class="table">
+  <thead class="table-light">
+    <tr>
+      <th scope="col">Loan ID</th>
+      <% if current_user.is_admin? %>
+        <th scope="col">User</th>
+      <% end %>
+      <th scope="col">Status</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Interest</th>
+      <th scope="col" colspan="3" class="text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% loans.each do |loan|%>
+    <tr>
+        <td><%=loan.id %></td>
+        <% if current_user.is_admin? %>
+          <td scope="col"><%= loan.user.email %></td>
+        <% end %>
+        <td><span id='loan-status'><%=loan.status.titleize %></span></td>
+        <td><%=loan.total_amount%></td>
+        <td><%=loan.interest_rate%></td>
+        <% if (current_user.is_admin? && loan.status != 'approved') || loan.status == 'open' %>
+            <td class="text-center">
+                <%= link_to 'view', user_loan_path(current_user.id, loan.id), data: { turbo: false, remote: true }, class:"btn btn-primary btn-sm" %>
+            </td>   
+        <% end %>
+        <% if ['approved', 'waiting_for_adjustment_acceptance'].include?(loan.status) && !current_user.is_admin? %>
+            <td><%= button_tag 'Confirm Approval', class:"btn btn-success btn-sm confirm-approval", data_loan_id: loan.id, data_status: loan.status ,onclick:"confirmApproval(this)" %></td>
+            <%if loan.status == 'waiting_for_adjustment_acceptance'%>
+             <td><%= button_tag "Readjust", id: "my-button", url:'#', type: "button", class: "btn btn-warning btn-sm", data_loan_id: loan.id, onclick: "updateLoan(this)" %></td>
+            <% end %>
+            <td><%= link_to 'Reject', reject_path(id: loan.id), class:"btn btn-danger btn-sm" %></td>
+        <% else %>
+            <td colspan="3"></td>
+        <% end %>
+    </tr>
+    <% end %>
+    <% if loans.blank? %>
+       <tr><td class="text-center border-0 fs-4 fw-bold text-secondary" colspan='8'>No data available.</td></tr> 
+    <% end %>
+  </tbody>
+</table>
+    <script>
+
+        function updateLoan(element) {
+            var loan_id = element.getAttribute('data_loan_id');
+            $.ajax({
+                url: '/adjustment',
+                method: 'GET',
+                data: {id: loan_id, status: 'readjustment'},
+                success: function (response) {
+                    console.log('Success:', response);
+                },
+                error: function (error) {
+                    console.log('Error:', error);
+                }
+            });
+        }
+
+
+        function confirmApproval(element){
+            var loan_id = element.getAttribute('data_loan_id');
+            var loan_status = element.getAttribute('data_status');
+            console.log('....>>>>...', loan_status);
+            $('.confirm-approval').css('pointer-events', 'none');
+            $.ajax({
+            url: '/approve',
+            method: 'GET',
+            data: { loan_id: loan_id, status: loan_status },
+            success: function(response) {
+                $('.confirm-approval').css('pointer-events', '');
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+            });
+        }
+    </script>

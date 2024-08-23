@@ -1,0 +1,48 @@
+@import "bootstrap";
+
+
+
+ /* Remove spinner buttons in Chrome, Safari, Edge, and Opera */
+ input[type="number"]::-webkit-inner-spin-button,
+ input[type="number"]::-webkit-outer-spin-button {
+     -webkit-appearance: none;
+     margin: 0;
+ }
+ 
+ /* Remove spinner buttons in Firefox */
+ input[type="number"] {
+     -moz-appearance: textfield;
+ }
+ 
+ /* Remove spinner buttons in Internet Explorer and older Edge */
+ input[type="number"] {
+     -ms-appearance: textfield;
+ }
+ 
+ /* for future if action cable need to implement to notify the new update */
+ .blinking-dot {
+     position: relative;
+     display: inline-block;
+ }
+ 
+ .blinking-dot::after {
+     content: '';
+     position: absolute;
+     top: 12px;
+     right: 25px;
+     width: 12px;
+     height: 12px;
+     background-color: green;
+     border-radius: 50%;
+     border: 1px solid white; /* Optional: adds a border around the dot */
+     animation: blink 1s infinite; /* Apply the blinking animation */
+ }
+ 
+ @keyframes blink {
+     0% { opacity: 1; }
+     50% { opacity: 0; }
+     100% { opacity: 1; }
+ }
+ 
+ 
+ 
