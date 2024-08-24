@@ -11,7 +11,12 @@ class LoansController < ApplicationController
   end
 
   def show
-    @loan = Loan.find_by(id:params[:id])
+    if current_user.is_admin?
+      @loan = Loan.find_by(id:params[:id])
+    else
+      @user  = User.find_by(id:params[:user_id])
+      @loan = @user.loans.find_by(id:params[:id])
+    end
   end
   
   def new
@@ -50,19 +55,23 @@ class LoansController < ApplicationController
     @loans = current_user.loans.where(status: 'approved')
     admin = User.admin
     if params[:loan_id].present?
+      if current_user.id != Loan.find_by(id: params[:loan_id]).user_id
+        return
+      end
       @loan = Loan.find(params[:loan_id])
       final_amount = current_user.amount + @loan.amount
       pending_amount = admin.amount - @loan.amount
-      Loan.create(user_id: @loan.user_id, 
-                  parent_id: @loan.id, 
-                  interest_rate: @loan.interest_rate, 
-                  amount: @loan.amount, 
+      Loan.create(user_id: @loan.user_id,
+                  parent_id: @loan.id,
+                  interest_rate: @loan.interest_rate,
+                  amount: @loan.amount,
                   status: params[:status])  if params[:status] == 'waiting_for_adjustment_acceptance'
       admin.update(amount: pending_amount)
       current_user.update(amount: final_amount)
       @loan.update(status: 'open')
     else
-      @loan = Loan.find_by(id: params[:id])
+      @user = User.find_by(id: params[:user_id])
+      @loan = @user.loans.find_by(id: params[:id])
       @loan.update(status: 'approved')
     end
     if request.xhr?
@@ -82,15 +91,19 @@ class LoansController < ApplicationController
     end
   end
 
-  def update
-    @loan = Loan.find_by(id: params[:id])
+ def update
+    @user = User.find_by(id: params[:user_id])
+    @loan = @user.loans.find_by(id: params[:id])
+    if current_user.id != @loan.user_id && !current_user.is_admin?
+      return
+    end
     amount= @loan.amount
     interest_rate= @loan.interest_rate
     status= @loan.status
     loan_params[:status] = 'waiting_for_adjustment_acceptance' if loan_params[:status] != 'readjustment'
     loan_params[:total_amount]  = loan_params[:amount]
     if @loan.update(loan_params)
-      Loan.create(user_id: @loan.user_id ,parent_id: @loan.id, interest_rate: interest_rate, amount: amount, status: status)
+      @user.loans.create(parent_id: @loan.id, interest_rate: interest_rate, amount: amount, status: status)
       redirect_to root_path
     else
       render :adjustment, status: :unprocessable_entity
