@@ -63,12 +63,11 @@
         function confirmApproval(element){
             var loan_id = element.getAttribute('data_loan_id');
             var loan_status = element.getAttribute('data_status');
-            console.log('....>>>>...', loan_status);
             $('.confirm-approval').css('pointer-events', 'none');
             $.ajax({
             url: '/approve',
             method: 'GET',
-            data: { loan_id: loan_id, status: loan_status },
+            data: { loan_id: loan_id, status: loan_status, current_user: '<%= current_user.id %>'},
             success: function(response) {
                 $('.confirm-approval').css('pointer-events', '');
             },
