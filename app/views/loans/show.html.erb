@@ -15,7 +15,7 @@
       <div class="col-md-12 text-center">
         <%= button_tag "Reject Loan", id: "my-button", class: "btn btn-secondary me-2", onclick: "reject_request()" %>
         <%= button_tag "Adjust Loan", id: "my-button", url:'#', type: "button", class: "btn btn-warning me-2", onclick: "updateLoan()" %>
-        <%= link_to "Approve Loan", approve_path(id: @loan.id), class: "btn btn-success" + (current_user.amount >= @loan.amount ? '' : ' disabled') %>
+        <%= link_to "Approve Loan", approve_path(id: @loan.id, user_id: @loan.user_id), class: "btn btn-success" + (current_user.amount >= @loan.amount ? '' : ' disabled') %>
       </div>
     </div>
   <% end %>
